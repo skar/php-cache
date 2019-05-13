@@ -1,2 +1,1 @@
-# php-cache
-PSR-6 Cache Library
+# PSR-6 Cache Library
