@@ -3,31 +3,18 @@ declare(strict_types=1);
 
 namespace Skar\Cache\Storage\Adapter;
 
-use Predis\Client;
-
 /**
- * Class Predis
+ * Class Memory
  *
  * @package Skar\Cache
  */
-class Predis implements AdapterInterface {
+class Memory implements AdapterInterface {
 	/**
-	 * @var Client
+	 * @var array<string, array{int|null, string}>
 	 */
-	protected $client;
+	protected array $data = [];
 
 	/**
-	 * Predis constructor.
-	 *
-	 * @param Client $client
-	 */
-	public function __construct(Client $client) {
-		$this->client = $client;
-	}
-
-	/**
-	 * Validate key for storage
-	 *
 	 * @param string $key
 	 *
 	 * @return bool
@@ -47,13 +34,12 @@ class Predis implements AdapterInterface {
 		}
 
 		$items = [];
-
-		$result = array_combine($keys, $this->client->mget($keys));
-
-		foreach ($result as $key => $value) {
-			if ($value) {
-				$items[$key] = unserialize($value);
+		$result = array_intersect_key($keys, $this->data);
+		foreach ($result as $key => $data) {
+			if ($data[0] && $data[0] < time()) {
+				unset($this->data[$key]);
 			}
+			$items[$key] = $data[1];
 		}
 
 		return $items;
@@ -67,12 +53,10 @@ class Predis implements AdapterInterface {
 	 * @return bool
 	 */
 	public function save(string $key, $value, ?int $ttl = null): bool {
-		if ($ttl) {
-			$this->client->set($key, serialize($value), 'EX', $ttl);
-		} else {
-			$this->client->set($key, serialize($value));
-		}
-
+		$this->data[$key] = [
+			$ttl ? time() + $ttl : null,
+			$value,
+		];
 		return true;
 	}
 }

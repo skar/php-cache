@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Skar\Cache;
 
 use DateInterval;
@@ -16,7 +18,7 @@ class Item implements CacheItemInterface {
 	/**
 	 * @var string
 	 */
-	protected $key;
+	protected string $key;
 
 	/**
 	 * @var mixed
@@ -26,12 +28,12 @@ class Item implements CacheItemInterface {
 	/**
 	 * @var bool
 	 */
-	protected $isHit;
+	protected bool $isHit;
 
 	/**
 	 * @var int|null
 	 */
-	protected $expiresAt;
+	protected ?int $expiresAt;
 
 	/**
 	 * Item constructor.

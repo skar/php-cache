@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Skar\Cache\Storage\Adapter;
 
 /**
@@ -10,25 +12,25 @@ interface AdapterInterface {
 	/**
 	 * Validate key for storage
 	 *
-	 * @param $key
+	 * @param string $key
 	 *
 	 * @return bool
 	 */
-	public function validateKey($key): bool;
+	public function validateKey(string $key): bool;
 
 	/**
-	 * @param $keys
+	 * @param string[] $keys
 	 *
 	 * @return array
 	 */
 	public function fetch(array $keys): array;
 
 	/**
-	 * @param $key
-	 * @param $value
-	 * @param $ttl
+	 * @param string $key
+	 * @param mixed $value
+	 * @param int|null $ttl
 	 *
 	 * @return bool
 	 */
-	public function save($key, $value, $ttl = null): bool;
+	public function save(string $key, $value, ?int $ttl = null): bool;
 }
