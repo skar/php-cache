@@ -91,7 +91,7 @@ class Item implements CacheItemInterface {
 			));
 		}
 
-		$this->expiresAt = $expiration->getTimestamp();
+		$this->expiresAt = $expiration ? $expiration->getTimestamp() : null;
 
 		return $this;
 	}
