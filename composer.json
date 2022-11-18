@@ -11,15 +11,15 @@
 		}
 	],
 	"provide": {
-		"psr/cache-implementation": "1.0"
+	 	"psr/cache-implementation": "3.0.0"
 	},
 	"require": {
-		"psr/cache": "^1.0",
-		"php": "^7.4 || ^8.0"
+		"psr/cache": "^3.0",
+		"php": "^8.0"
 	},
 	"require-dev": {
 		"predis/predis": "^1.1",
-		"phpunit/phpunit": "^8.0"
+		"phpunit/phpunit": "^8.5"
 	},
 	"suggest": {
 		"predis/predis": "For Predis cache"

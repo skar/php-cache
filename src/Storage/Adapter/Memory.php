@@ -22,7 +22,7 @@ final class Memory implements AdapterInterface {
 	/**
 	 * @inheritdoc
 	 */
-	public function validateKey($key): bool {
+	public function validateKey(mixed $key): bool {
 		return is_string($key);
 	}
 
@@ -60,7 +60,7 @@ final class Memory implements AdapterInterface {
 	/**
 	 * @inheritdoc
 	 */
-	public function set(string $key, $value, ?int $ttl = null): bool {
+	public function set(string $key, mixed $value, ?int $ttl = null): bool {
 		$this->data[$key] = $value;
 
 		if ($ttl) {
@@ -105,7 +105,7 @@ final class Memory implements AdapterInterface {
 	 *
 	 * @return void
 	 */
-	private function checkExpired(array $keys = []) {
+	private function checkExpired(array $keys = []): void {
 		if (count($keys) === 0) {
 			$keys = array_keys($this->data);
 		}

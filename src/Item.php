@@ -16,34 +16,19 @@ use Skar\Cache\Exception\InvalidArgumentException;
  * @package Skar\Cache
  */
 class Item implements CacheItemInterface {
-	/**
-	 * @var string
-	 */
 	protected string $key;
-
-	/**
-	 * @var mixed
-	 */
-	protected $value;
-
-	/**
-	 * @var bool
-	 */
+	protected mixed $value;
 	protected bool $isHit;
-
-	/**
-	 * @var int|null
-	 */
 	protected ?int $expiresAt;
 
 	/**
 	 * Item constructor.
 	 *
 	 * @param string $key
-	 * @param null $value
+	 * @param mixed $value
 	 * @param bool $isHit
 	 */
-	public function __construct(string $key, $value = null, bool $isHit = false) {
+	public function __construct(string $key, mixed $value = null, bool $isHit = false) {
 		$this->key = $key;
 		$this->value = $value;
 		$this->isHit = $isHit;
@@ -59,7 +44,7 @@ class Item implements CacheItemInterface {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function get() {
+	public function get(): mixed {
 		return $this->value;
 	}
 
@@ -73,7 +58,7 @@ class Item implements CacheItemInterface {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function set($value): self {
+	public function set($value): static {
 		$this->value = $value;
 
 		return $this;
@@ -84,7 +69,7 @@ class Item implements CacheItemInterface {
 	 *
 	 * @throws InvalidArgumentException
 	 */
-	public function expiresAt($expiration): self {
+	public function expiresAt($expiration): static {
 		if ($expiration !== null && !$expiration instanceof DateTimeInterface) {
 			throw new InvalidArgumentException(sprintf(
 				'Expiration date must implement DateTimeInterface or be null, "%s" given',
@@ -92,7 +77,7 @@ class Item implements CacheItemInterface {
 			));
 		}
 
-		$this->expiresAt = $expiration ? $expiration->getTimestamp() : null;
+		$this->expiresAt = $expiration?->getTimestamp();
 
 		return $this;
 	}
@@ -103,7 +88,7 @@ class Item implements CacheItemInterface {
 	 * @throws InvalidArgumentException
 	 * @throws Exception
 	 */
-	public function expiresAfter($time): self {
+	public function expiresAfter($time): static {
 		if ($time === null) {
 			return $this->expiresAt(null);
 		}

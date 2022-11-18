@@ -16,7 +16,7 @@ interface AdapterInterface {
 	 *
 	 * @return bool
 	 */
-	public function validateKey($key): bool;
+	public function validateKey(mixed $key): bool;
 
 	/**
 	 * Confirms if the cache contains specified keys.
@@ -45,7 +45,7 @@ interface AdapterInterface {
 	 *
 	 * @return bool
 	 */
-	public function set(string $key, $value, ?int $ttl = null): bool;
+	public function set(string $key, mixed $value, ?int $ttl = null): bool;
 
 	/**
 	 * Removes the item from the storage.

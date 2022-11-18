@@ -32,7 +32,7 @@ final class Predis implements AdapterInterface {
 	 *
 	 * @return static
 	 */
-	public function setKeyTemplate(string $template) {
+	public function setKeyTemplate(string $template): static {
 		$this->keyTemplate = $template;
 
 		return $this;
@@ -50,7 +50,7 @@ final class Predis implements AdapterInterface {
 	/**
 	 * @inheritdoc
 	 */
-	public function validateKey($key): bool {
+	public function validateKey(mixed $key): bool {
 		return is_string($key);
 	}
 
@@ -89,7 +89,7 @@ final class Predis implements AdapterInterface {
 	/**
 	 * @inheritdoc
 	 */
-	public function set(string $key, $value, ?int $ttl = null): bool {
+	public function set(string $key, mixed $value, ?int $ttl = null): bool {
 		$key = $this->getKeyName($key);
 		if ($ttl) {
 			$this->client->set($key, serialize($value), 'EX', $ttl);

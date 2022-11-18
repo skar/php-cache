@@ -50,7 +50,7 @@ class Cache implements CacheItemPoolInterface {
 	 *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
 	 */
-	public function getItem($key): CacheItemInterface {
+	public function getItem(string $key): CacheItemInterface {
 		if (!$this->adapter->validateKey($key)) {
 			throw new Exception\InvalidArgumentException('Invalid key: ' . $key);
 		}
@@ -80,7 +80,7 @@ class Cache implements CacheItemPoolInterface {
 	 *   If any of the keys in $keys are not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
 	 */
-	public function getItems(array $keys = []) {
+	public function getItems(array $keys = []): iterable {
 		foreach ($keys as $key) {
 			if (!$this->adapter->validateKey($key)) {
 				throw new Exception\InvalidArgumentException('Invalid key: ' . $key);
@@ -120,7 +120,7 @@ class Cache implements CacheItemPoolInterface {
 	 *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
 	 */
-	public function hasItem($key): bool {
+	public function hasItem(string $key): bool {
 		if (!$this->adapter->validateKey($key)) {
 			throw new Exception\InvalidArgumentException('Invalid key: ' . $key);
 		}
@@ -151,7 +151,7 @@ class Cache implements CacheItemPoolInterface {
 	 *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
 	 */
-	public function deleteItem($key): bool {
+	public function deleteItem(string $key): bool {
 		if (!$this->adapter->validateKey($key)) {
 			throw new Exception\InvalidArgumentException('Invalid key: ' . $key);
 		}
