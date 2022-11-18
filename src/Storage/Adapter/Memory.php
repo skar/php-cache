@@ -8,37 +8,49 @@ namespace Skar\Cache\Storage\Adapter;
  *
  * @package Skar\Cache
  */
-class Memory implements AdapterInterface {
+final class Memory implements AdapterInterface {
 	/**
-	 * @var array<string, array{int|null, string}>
+	 * @var array<string, mixed>
 	 */
-	protected array $data = [];
+	private array $data = [];
 
 	/**
-	 * @param string $key
-	 *
-	 * @return bool
+	 * @var array<string, int>
 	 */
-	public function validateKey(string $key): bool {
-		return true;
+	private array $expired = [];
+
+	/**
+	 * @inheritdoc
+	 */
+	public function validateKey($key): bool {
+		return is_string($key);
 	}
 
 	/**
-	 * @param string[] $keys
-	 *
-	 * @return array
+	 * @inheritdoc
 	 */
-	public function fetch(array $keys): array {
+	public function has(array $keys): array {
+		$this->checkExpired($keys);
+
+		$result = [];
+		foreach ($keys as $k => $key) {
+			$result[$k] = array_key_exists($key, $this->data);
+		}
+		return $result;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function get(array $keys): array {
 		if (!$keys) {
 			return [];
 		}
 
 		$items = [];
 		$result = array_intersect_key($keys, $this->data);
+		$this->checkExpired(array_keys($result));
 		foreach ($result as $key => $data) {
-			if ($data[0] && $data[0] < time()) {
-				unset($this->data[$key]);
-			}
 			$items[$key] = $data[1];
 		}
 
@@ -46,17 +58,69 @@ class Memory implements AdapterInterface {
 	}
 
 	/**
-	 * @param string $key
-	 * @param mixed $value
-	 * @param int|null $ttl
-	 *
-	 * @return bool
+	 * @inheritdoc
 	 */
-	public function save(string $key, $value, ?int $ttl = null): bool {
-		$this->data[$key] = [
-			$ttl ? time() + $ttl : null,
-			$value,
-		];
+	public function set(string $key, $value, ?int $ttl = null): bool {
+		$this->data[$key] = $value;
+
+		if ($ttl) {
+			$this->expired[$key] = time() + $ttl;
+		}
+
 		return true;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function delete(array $keys): array {
+		$result = [];
+		foreach ($keys as $k => $key) {
+			if (!array_key_exists($key, $this->data)) {
+				$result[$k] = false;
+				continue;
+			}
+
+			unset($this->data[$key]);
+
+			if (array_key_exists($key, $this->expired)) {
+				unset($this->expired[$key]);
+			}
+			$result[$k] = true;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function clear(): bool {
+		$this->data = [];
+		return true;
+	}
+
+	/**
+	 * @param array $keys
+	 *
+	 * @return void
+	 */
+	private function checkExpired(array $keys = []) {
+		if (count($keys) === 0) {
+			$keys = array_keys($this->data);
+		}
+
+		$time = time();
+		foreach ($keys as $key) {
+			if (!array_key_exists($key, $this->expired)) {
+				continue;
+			}
+
+			if ($this->expired[$key] > $time) {
+				continue;
+			}
+
+			$this->delete([$key]);
+		}
 	}
 }

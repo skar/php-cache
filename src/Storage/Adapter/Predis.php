@@ -10,11 +10,13 @@ use Predis\Client;
  *
  * @package Skar\Cache
  */
-class Predis implements AdapterInterface {
+final class Predis implements AdapterInterface {
 	/**
 	 * @var Client
 	 */
-	protected $client;
+	protected Client $client;
+
+	protected string $keyTemplate = 'cache_%s';
 
 	/**
 	 * Predis constructor.
@@ -26,47 +28,69 @@ class Predis implements AdapterInterface {
 	}
 
 	/**
-	 * Validate key for storage
+	 * @param string $template
 	 *
-	 * @param string $key
-	 *
-	 * @return bool
+	 * @return static
 	 */
-	public function validateKey(string $key): bool {
-		return true;
+	public function setKeyTemplate(string $template) {
+		$this->keyTemplate = $template;
+
+		return $this;
 	}
 
 	/**
-	 * @param string[] $keys
+	 * @param $key
 	 *
-	 * @return array
+	 * @return string
 	 */
-	public function fetch(array $keys): array {
+	public function getKeyName($key): string {
+		return sprintf($this->keyTemplate, $key);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function validateKey($key): bool {
+		return is_string($key);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function has(array $keys): array {
+		$result = [];
+		foreach ($keys as $k => $key) {
+			$result[$k] = !!$this->client->exists($this->getKeyName($key));
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function get(array $keys): array {
 		if (!$keys) {
 			return [];
 		}
 
 		$items = [];
-
-		$result = array_combine($keys, $this->client->mget($keys));
-
+		$result = array_combine($keys, $this->client->mget(array_map([ $this, 'getKeyName' ], $keys)));
 		foreach ($result as $key => $value) {
-			if ($value) {
-				$items[$key] = unserialize($value);
+			if (!$value) {
+				continue;
 			}
+			$items[$key] = unserialize($value);
 		}
 
 		return $items;
 	}
 
 	/**
-	 * @param string $key
-	 * @param mixed $value
-	 * @param int|null $ttl
-	 *
-	 * @return bool
+	 * @inheritdoc
 	 */
-	public function save(string $key, $value, ?int $ttl = null): bool {
+	public function set(string $key, $value, ?int $ttl = null): bool {
+		$key = $this->getKeyName($key);
 		if ($ttl) {
 			$this->client->set($key, serialize($value), 'EX', $ttl);
 		} else {
@@ -74,5 +98,26 @@ class Predis implements AdapterInterface {
 		}
 
 		return true;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function delete(array $keys): array {
+		$result = [];
+		foreach ($keys as $k => $key) {
+			$result[$k] = !!$this->client->del($this->getKeyName($key));
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function clear(): bool {
+		$keys = $this->client->keys($this->getKeyName('*'));
+
+		return !!$this->client->del($keys);
 	}
 }

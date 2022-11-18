@@ -18,7 +18,12 @@ class Cache implements CacheItemPoolInterface {
 	/**
 	 * @var AdapterInterface
 	 */
-	protected $adapter;
+	protected AdapterInterface $adapter;
+
+	/**
+	 * @var CacheItemInterface[]
+	 */
+	protected array $deferred = [];
 
 	/**
 	 * Cache constructor.
@@ -51,7 +56,7 @@ class Cache implements CacheItemPoolInterface {
 			throw new Exception\InvalidArgumentException('Invalid key: ' . $key);
 		}
 
-		if (!$items = $this->adapter->fetch([$key])) {
+		if (!$items = $this->adapter->get([$key])) {
 			return new Item($key);
 		}
 
@@ -66,7 +71,7 @@ class Cache implements CacheItemPoolInterface {
 	 * @param string[] $keys
 	 *   An indexed array of keys of items to retrieve.
 	 *
-	 * @return array|\Traversable
+	 * @return Item[]
 	 *   A traversable collection of Cache Items keyed by the cache keys of
 	 *   each item. A Cache item will be returned for each key, even if that
 	 *   key is not found. However, if no keys are specified then an empty
@@ -84,7 +89,7 @@ class Cache implements CacheItemPoolInterface {
 			}
 		}
 
-		if (!$items = $this->adapter->fetch($keys)) {
+		if (!$items = $this->adapter->get($keys)) {
 			return [];
 		}
 
@@ -123,9 +128,7 @@ class Cache implements CacheItemPoolInterface {
 			throw new Exception\InvalidArgumentException('Invalid key: ' . $key);
 		}
 
-		// TODO: Implement hasItem() method.
-
-		return false;
+		return $this->adapter->has([ $key ])[0];
 	}
 
 	/**
@@ -135,9 +138,7 @@ class Cache implements CacheItemPoolInterface {
 	 *   True if the pool was successfully cleared. False if there was an error.
 	 */
 	public function clear(): bool {
-		// TODO: Implement clear() method.
-
-		return false;
+		return $this->adapter->clear();
 	}
 
 	/**
@@ -159,9 +160,7 @@ class Cache implements CacheItemPoolInterface {
 			throw new Exception\InvalidArgumentException('Invalid key: ' . $key);
 		}
 
-		// TODO: Implement deleteItem() method.
-
-		return false;
+		return $this->adapter->delete([ $key ])[0];
 	}
 
 	/**
@@ -185,9 +184,9 @@ class Cache implements CacheItemPoolInterface {
 			}
 		}
 
-		// TODO: Implement deleteItems() method.
+		$this->adapter->delete($keys);
 
-		return false;
+		return true;
 	}
 
 	/**
@@ -207,7 +206,7 @@ class Cache implements CacheItemPoolInterface {
 			throw new Exception\InvalidArgumentException('Skar\\Cache\\Item type expected');
 		}
 
-		return $this->adapter->save($item->getKey(), $item->get(), $item->getTtl());
+		return $this->adapter->set($item->getKey(), $item->get(), $item->getTtl());
 	}
 
 	/**
@@ -220,9 +219,9 @@ class Cache implements CacheItemPoolInterface {
 	 *   False if the item could not be queued or if a commit was attempted and failed. True otherwise.
 	 */
 	public function saveDeferred(CacheItemInterface $item): bool {
-		// TODO: Implement saveDeferred() method.
+		$this->deferred[] = $item;
 
-		return false;
+		return true;
 	}
 
 	/**
@@ -230,10 +229,14 @@ class Cache implements CacheItemPoolInterface {
 	 *
 	 * @return bool
 	 *   True if all not-yet-saved items were successfully saved or there were none. False otherwise.
+	 *
+	 * @throws Exception\InvalidArgumentException
 	 */
 	public function commit(): bool {
-		// TODO: Implement commit() method.
+		while ($item = array_shift($this->deferred)) {
+			$this->save($item);
+		}
 
-		return false;
+		return true;
 	}
 }

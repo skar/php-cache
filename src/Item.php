@@ -6,6 +6,7 @@ namespace Skar\Cache;
 use DateInterval;
 use DateTime;
 use DateTimeInterface;
+use Exception;
 use Psr\Cache\CacheItemInterface;
 use Skar\Cache\Exception\InvalidArgumentException;
 
@@ -100,7 +101,7 @@ class Item implements CacheItemInterface {
 	 * {@inheritdoc}
 	 *
 	 * @throws InvalidArgumentException
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function expiresAfter($time): self {
 		if ($time === null) {
@@ -123,8 +124,6 @@ class Item implements CacheItemInterface {
 
 	/**
 	 * @return int
-	 *
-	 * @throws \Exception
 	 */
 	public function getTtl(): int {
 		$ttl = $this->expiresAt - time();

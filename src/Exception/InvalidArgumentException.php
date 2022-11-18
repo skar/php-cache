@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Skar\Cache\Exception;
 
 use Exception;
-use \Psr\Cache\InvalidArgumentException as InvalidArgumentExceptionInterface;
+use Psr\Cache\InvalidArgumentException as InvalidArgumentExceptionInterface;
 
 /**
  * Class InvalidArgumentException
