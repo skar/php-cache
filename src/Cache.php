@@ -49,7 +49,6 @@ class Cache implements CacheItemPoolInterface {
 	 * @throws InvalidArgumentException
 	 *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
-	 *
 	 */
 	public function getItem($key): CacheItemInterface {
 		if (!$this->adapter->validateKey($key)) {
@@ -71,7 +70,7 @@ class Cache implements CacheItemPoolInterface {
 	 * @param string[] $keys
 	 *   An indexed array of keys of items to retrieve.
 	 *
-	 * @return Item[]
+	 * @return CacheItemInterface[]
 	 *   A traversable collection of Cache Items keyed by the cache keys of
 	 *   each item. A Cache item will be returned for each key, even if that
 	 *   key is not found. However, if no keys are specified then an empty
@@ -80,7 +79,6 @@ class Cache implements CacheItemPoolInterface {
 	 * @throws InvalidArgumentException
 	 *   If any of the keys in $keys are not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
-	 *
 	 */
 	public function getItems(array $keys = []) {
 		foreach ($keys as $key) {
@@ -121,7 +119,6 @@ class Cache implements CacheItemPoolInterface {
 	 * @throws InvalidArgumentException
 	 *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
-	 *
 	 */
 	public function hasItem($key): bool {
 		if (!$this->adapter->validateKey($key)) {
@@ -153,7 +150,6 @@ class Cache implements CacheItemPoolInterface {
 	 * @throws InvalidArgumentException
 	 *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
-	 *
 	 */
 	public function deleteItem($key): bool {
 		if (!$this->adapter->validateKey($key)) {
@@ -175,7 +171,6 @@ class Cache implements CacheItemPoolInterface {
 	 * @throws InvalidArgumentException
 	 *   If any of the keys in $keys are not a legal value a \Psr\Cache\InvalidArgumentException
 	 *   MUST be thrown.
-	 *
 	 */
 	public function deleteItems(array $keys): bool {
 		foreach ($keys as $key) {

@@ -39,11 +39,11 @@ final class Predis implements AdapterInterface {
 	}
 
 	/**
-	 * @param $key
+	 * @param string $key
 	 *
 	 * @return string
 	 */
-	public function getKeyName($key): string {
+	public function getKeyName(string $key): string {
 		return sprintf($this->keyTemplate, $key);
 	}
 
