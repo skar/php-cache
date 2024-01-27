@@ -18,7 +18,7 @@ class Item implements CacheItemInterface {
 	protected string $key;
 	protected mixed $value;
 	protected bool $isHit;
-	protected ?int $expiresAt;
+	protected ?int $expiresAt = null;
 
 	/**
 	 * Item constructor.
@@ -90,9 +90,13 @@ class Item implements CacheItemInterface {
 	}
 
 	/**
-	 * @return int
+	 * @return int|null
 	 */
-	public function getTtl(): int {
+	public function getTtl(): ?int {
+		if ($this->expiresAt === null) {
+			return null;
+		}
+
 		$ttl = $this->expiresAt - time();
 
 		return $ttl < 0 ? 0 : $ttl;
