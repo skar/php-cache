@@ -8,7 +8,6 @@ use DateTime;
 use DateTimeInterface;
 use Exception;
 use Psr\Cache\CacheItemInterface;
-use Skar\Cache\Exception\InvalidArgumentException;
 
 /**
  * Class Item
@@ -66,17 +65,8 @@ class Item implements CacheItemInterface {
 
 	/**
 	 * {@inheritdoc}
-	 *
-	 * @throws InvalidArgumentException
 	 */
-	public function expiresAt($expiration): static {
-		if ($expiration !== null && !$expiration instanceof DateTimeInterface) {
-			throw new InvalidArgumentException(sprintf(
-				'Expiration date must implement DateTimeInterface or be null, "%s" given',
-				is_object($expiration) ? get_class($expiration) : gettype($expiration)
-			));
-		}
-
+	public function expiresAt(?DateTimeInterface $expiration): static {
 		$this->expiresAt = $expiration?->getTimestamp();
 
 		return $this;
@@ -85,10 +75,9 @@ class Item implements CacheItemInterface {
 	/**
 	 * {@inheritdoc}
 	 *
-	 * @throws InvalidArgumentException
 	 * @throws Exception
 	 */
-	public function expiresAfter($time): static {
+	public function expiresAfter(int|DateInterval|null $time): static {
 		if ($time === null) {
 			return $this->expiresAt(null);
 		}
@@ -97,14 +86,7 @@ class Item implements CacheItemInterface {
 			$time = new DateInterval('PT' . $time . 'S');
 		}
 
-		if ($time instanceof DateInterval) {
-			return $this->expiresAt((new DateTime())->add($time));
-		}
-
-		throw new InvalidArgumentException(sprintf(
-			'Expiration date must be an integer, a DateInterval or null, "%s" given',
-			is_object($time) ? get_class($time) : gettype($time)
-		));
+		return $this->expiresAt((new DateTime())->add($time));
 	}
 
 	/**
